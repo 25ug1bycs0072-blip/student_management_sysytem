@@ -1,0 +1,105 @@
+{
+  "info": {
+    "_postman_id": "bd841b16-9bd6-4e16-a4cf-878eb817c2d5",
+    "name": "CampusDesk Student Management API",
+    "description": "Smoke tests and CRUD examples for the Flask student management REST API.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://127.0.0.1:5001" },
+    { "key": "studentId", "value": "" },
+    { "key": "gradeId", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "Health check",
+      "request": { "method": "GET", "header": [], "url": "{{baseUrl}}/api/health" },
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('API is healthy', function () { pm.response.to.have.status(200); pm.expect(pm.response.json().status).to.eql('ok'); });"] } }]
+    },
+    {
+      "name": "Dashboard summary",
+      "request": { "method": "GET", "header": [], "url": "{{baseUrl}}/api/dashboard" },
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('Dashboard summary loads', function () { pm.response.to.have.status(200); pm.expect(pm.response.json()).to.have.property('total_students'); });"] } }]
+    },
+    {
+      "name": "List and filter students",
+      "request": { "method": "GET", "header": [], "url": "{{baseUrl}}/api/students?search=avery&status=Active" },
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('Student list returns an array', function () { pm.response.to.have.status(200); pm.expect(pm.response.json()).to.be.an('array'); });"] } }]
+    },
+    {
+      "name": "Create student",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": { "mode": "raw", "raw": "{\n  \"full_name\": \"Avery Johnson\",\n  \"email\": \"avery.{{$timestamp}}@example.edu\",\n  \"phone\": \"+1 555 0100\",\n  \"course\": \"Computer Science\",\n  \"year\": 2,\n  \"status\": \"Active\",\n  \"enrollment_date\": \"2025-09-01\"\n}" },
+        "url": "{{baseUrl}}/api/students"
+      },
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('Student is created', function () { pm.response.to.have.status(201); pm.expect(pm.response.json()).to.have.property('id'); pm.collectionVariables.set('studentId', pm.response.json().id); });"] } }]
+    },
+    {
+      "name": "Get student",
+      "request": { "method": "GET", "header": [], "url": "{{baseUrl}}/api/students/{{studentId}}" },
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('Student can be retrieved', function () { pm.response.to.have.status(200); pm.expect(pm.response.json()).to.have.property('id'); });"] } }]
+    },
+    {
+      "name": "Update student",
+      "request": {
+        "method": "PUT",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": { "mode": "raw", "raw": "{\n  \"full_name\": \"Avery Johnson\",\n  \"email\": \"avery.updated@example.edu\",\n  \"phone\": \"+1 555 0100\",\n  \"course\": \"Computer Science\",\n  \"year\": 3,\n  \"status\": \"Active\",\n  \"enrollment_date\": \"2025-09-01\"\n}" },
+        "url": "{{baseUrl}}/api/students/{{studentId}}"
+      },
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('Student can be updated', function () { pm.response.to.have.status(200); pm.expect(pm.response.json().year).to.eql(3); });"] } }]
+    },
+    {
+      "name": "Get attendance roster",
+      "request": { "method": "GET", "header": [], "url": "{{baseUrl}}/api/attendance?date=2025-10-12" },
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('Attendance roster returns an array', function () { pm.response.to.have.status(200); pm.expect(pm.response.json()).to.be.an('array'); });"] } }]
+    },
+    {
+      "name": "Save attendance",
+      "request": {
+        "method": "PUT",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": { "mode": "raw", "raw": "{\n  \"date\": \"2025-10-12\",\n  \"records\": [{ \"student_id\": {{studentId}}, \"status\": \"Present\" }]\n}" },
+        "url": "{{baseUrl}}/api/attendance"
+      },
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('Attendance is saved', function () { pm.response.to.have.status(200); });"] } }]
+    },
+    {
+      "name": "Create grade",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": { "mode": "raw", "raw": "{\n  \"student_id\": {{studentId}},\n  \"assessment\": \"Midterm\",\n  \"score\": 87.5,\n  \"assessed_on\": \"2025-10-10\"\n}" },
+        "url": "{{baseUrl}}/api/grades"
+      },
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('Grade is created', function () { pm.response.to.have.status(201); pm.collectionVariables.set('gradeId', pm.response.json().id); });"] } }]
+    },
+    {
+      "name": "List grades",
+      "request": { "method": "GET", "header": [], "url": "{{baseUrl}}/api/grades?search=midterm" },
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('Grades return an array', function () { pm.response.to.have.status(200); pm.expect(pm.response.json()).to.be.an('array'); });"] } }]
+    },
+    {
+      "name": "Update grade",
+      "request": {
+        "method": "PUT",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": { "mode": "raw", "raw": "{\n  \"student_id\": {{studentId}},\n  \"assessment\": \"Midterm\",\n  \"score\": 91,\n  \"assessed_on\": \"2025-10-10\"\n}" },
+        "url": "{{baseUrl}}/api/grades/{{gradeId}}"
+      },
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('Grade can be updated', function () { pm.response.to.have.status(200); pm.expect(pm.response.json().score).to.eql(91); });"] } }]
+    },
+    {
+      "name": "Delete grade",
+      "request": { "method": "DELETE", "header": [], "url": "{{baseUrl}}/api/grades/{{gradeId}}" },
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('Grade can be deleted', function () { pm.response.to.have.status(200); });"] } }]
+    },
+    {
+      "name": "Delete student",
+      "request": { "method": "DELETE", "header": [], "url": "{{baseUrl}}/api/students/{{studentId}}" },
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('Student can be deleted', function () { pm.response.to.have.status(200); });"] } }]
+    }
+  ]
+}

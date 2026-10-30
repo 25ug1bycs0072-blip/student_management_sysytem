@@ -1,0 +1,222 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f5f7fb">
+  <title>CampusDesk | Student management</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+  <script src="{{ url_for('static', filename='app.js') }}" defer></script>
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar" id="sidebar">
+      <a class="brand" href="#" aria-label="CampusDesk home">
+        <span class="brand-mark">C</span>
+        <span>campus<span class="brand-light">desk</span></span>
+      </a>
+      <div class="workspace-label">WORKSPACE</div>
+      <nav class="side-nav" aria-label="Main navigation">
+        <a class="nav-link active" href="#overview" data-nav="overview"><span class="nav-icon">⌂</span> Overview</a>
+        <a class="nav-link" href="#students" data-nav="students"><span class="nav-icon">▤</span> Students <span class="nav-count" id="nav-count">0</span></a>
+        <a class="nav-link" href="#attendance" data-nav="attendance"><span class="nav-icon">✓</span> Attendance</a>
+        <a class="nav-link" href="#grades" data-nav="grades"><span class="nav-icon">★</span> Grades</a>
+      </nav>
+      <div class="sidebar-bottom">
+        <div class="help-card">
+          <div class="help-icon">?</div>
+          <strong>Need a hand?</strong>
+          <p>Manage your student records with ease.</p>
+          <a href="#help">Explore help center <span aria-hidden="true">↗</span></a>
+        </div>
+        <div class="profile">
+          <div class="avatar avatar-admin">AD</div>
+          <div class="profile-copy"><strong>Administrator</strong><span>Campus admin</span></div>
+          <span class="profile-more" aria-hidden="true">•••</span>
+        </div>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <header class="topbar">
+        <button class="mobile-menu" id="mobile-menu" aria-label="Open navigation">☰</button>
+        <div class="breadcrumb">Workspace <span>/</span> <strong id="breadcrumb-current">Overview</strong></div>
+        <div class="topbar-right">
+          <span class="today-label" id="today-label"></span>
+          <span class="topbar-avatar">AD</span>
+        </div>
+      </header>
+
+      <section class="page-content" id="overview">
+        <div class="welcome-row">
+          <div>
+            <p class="eyebrow">YOUR CAMPUS AT A GLANCE</p>
+            <h1>Good morning, Admin <span class="wave">✦</span></h1>
+            <p class="subtitle">Here’s what’s happening with your students today.</p>
+          </div>
+          <button class="button button-primary" id="add-student-top"><span class="plus">+</span> Add student</button>
+        </div>
+
+        <div data-view="overview">
+        <div class="stats-grid" aria-label="Student summary">
+          <article class="stat-card">
+            <div class="stat-top"><span>Total students</span><span class="stat-icon icon-violet">♧</span></div>
+            <div class="stat-value" id="total-students">—</div>
+            <div class="stat-foot"><span class="stat-note">Across all courses</span></div>
+          </article>
+          <article class="stat-card">
+            <div class="stat-top"><span>Active students</span><span class="stat-icon icon-green">↗</span></div>
+            <div class="stat-value" id="active-students">—</div>
+            <div class="stat-foot"><span class="status-dot"></span><span class="stat-note">Currently enrolled</span></div>
+          </article>
+          <article class="stat-card">
+            <div class="stat-top"><span>Inactive students</span><span class="stat-icon icon-amber">◷</span></div>
+            <div class="stat-value" id="inactive-students">—</div>
+            <div class="stat-foot"><span class="stat-note">Not currently enrolled</span></div>
+          </article>
+          <article class="stat-card">
+            <div class="stat-top"><span>Courses</span><span class="stat-icon icon-blue">▦</span></div>
+            <div class="stat-value" id="course-count">—</div>
+            <div class="stat-foot"><span class="stat-note">Programs represented</span></div>
+          </article>
+        </div>
+
+        <section class="panel student-panel" id="students">
+          <div class="panel-heading">
+            <div>
+              <p class="eyebrow">DIRECTORY</p>
+              <h2>Student records</h2>
+              <p class="panel-subtitle">View and manage everyone in your campus.</p>
+            </div>
+            <button class="button button-outline" id="export-button" title="Download the current student list as CSV"><span class="download-icon">↓</span> Export CSV</button>
+          </div>
+          <div class="toolbar">
+            <label class="search-box">
+              <span class="search-icon" aria-hidden="true">⌕</span>
+              <input id="search-input" type="search" placeholder="Search by name, email or course..." autocomplete="off" aria-label="Search students">
+              <kbd>⌘ K</kbd>
+            </label>
+            <label class="select-wrap">
+              <span class="sr-only">Filter by course</span>
+              <select id="course-filter"><option value="">All courses</option></select>
+              <span class="select-chevron">⌄</span>
+            </label>
+            <label class="select-wrap">
+              <span class="sr-only">Filter by status</span>
+              <select id="status-filter">
+                <option value="">All status</option>
+                <option value="Active">Active</option>
+                <option value="Inactive">Inactive</option>
+              </select>
+              <span class="select-chevron">⌄</span>
+            </label>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th><button class="sort-button" id="sort-name">STUDENT <span>↕</span></button></th>
+                  <th>COURSE</th>
+                  <th>YEAR</th>
+                  <th>ENROLLED</th>
+                  <th>STATUS</th>
+                  <th><span class="sr-only">Actions</span></th>
+                </tr>
+              </thead>
+              <tbody id="student-rows">
+                <tr><td class="loading-cell" colspan="6"><span class="spinner"></span> Loading student records...</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="table-footer">
+            <span id="results-label">Showing 0 students</span>
+            <button class="refresh-button" id="refresh-button" title="Refresh student records">↻ <span>Refresh</span></button>
+          </div>
+        </section>
+        <footer class="footer"><span>© <span id="year-now"></span> CampusDesk</span><span>Made for better campus days <span class="footer-heart">♥</span></span></footer>
+        </div>
+
+        <section class="app-view panel" data-view="attendance" id="attendance-view" hidden>
+          <div class="panel-heading">
+            <div><p class="eyebrow">DAILY ROSTER</p><h2>Attendance</h2><p class="panel-subtitle">Mark active students present, absent, or late.</p></div>
+            <div class="attendance-actions"><label class="date-control">Class date<input type="date" id="attendance-date"></label><button class="button button-primary" type="button" id="save-attendance">Save attendance</button></div>
+          </div>
+          <div class="table-wrap">
+            <table><thead><tr><th>STUDENT</th><th>COURSE</th><th>ATTENDANCE</th></tr></thead>
+              <tbody id="attendance-rows"><tr><td class="loading-cell" colspan="3"><span class="spinner"></span> Loading roster...</td></tr></tbody>
+            </table>
+          </div>
+          <div class="table-footer"><span id="attendance-summary">Loading attendance...</span><button class="refresh-button" type="button" id="refresh-attendance">↻ <span>Refresh</span></button></div>
+        </section>
+
+        <section class="app-view panel" data-view="grades" id="grades-view" hidden>
+          <div class="panel-heading">
+            <div><p class="eyebrow">ACADEMIC PERFORMANCE</p><h2>Grade records</h2><p class="panel-subtitle">Record and review assessment scores for students.</p></div>
+            <button class="button button-primary" type="button" id="add-grade"><span class="plus">+</span> Add grade</button>
+          </div>
+          <div class="toolbar">
+            <label class="search-box"><span class="search-icon" aria-hidden="true">⌕</span><input id="grade-search" type="search" placeholder="Search student or assessment..." aria-label="Search grades"></label>
+            <span class="grade-average" id="grade-average">Average: —</span>
+          </div>
+          <div class="table-wrap">
+            <table><thead><tr><th>STUDENT</th><th>ASSESSMENT</th><th>COURSE</th><th>SCORE</th><th>DATE</th><th><span class="sr-only">Actions</span></th></tr></thead>
+              <tbody id="grade-rows"><tr><td class="loading-cell" colspan="6"><span class="spinner"></span> Loading grades...</td></tr></tbody>
+            </table>
+          </div>
+          <div class="table-footer"><span id="grade-count">Showing 0 grades</span><button class="refresh-button" type="button" id="refresh-grades">↻ <span>Refresh</span></button></div>
+        </section>
+      </section>
+    </main>
+  </div>
+
+  <div class="toast-region" id="toast-region" aria-live="polite"></div>
+  <div class="modal-backdrop" id="student-modal" hidden>
+    <section class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+      <div class="modal-heading">
+        <div><p class="eyebrow">STUDENT DIRECTORY</p><h2 id="modal-title">Add a student</h2><p class="panel-subtitle">Fill in the details to create a student record.</p></div>
+        <button class="icon-button" id="close-modal" type="button" aria-label="Close dialog">×</button>
+      </div>
+      <form id="student-form">
+        <div class="form-grid">
+          <label class="form-field full-field">Full name <span>*</span><input name="full_name" required maxlength="120" placeholder="e.g. Alex Morgan"></label>
+          <label class="form-field">Email address <span>*</span><input name="email" type="email" required maxlength="255" placeholder="alex@university.edu"></label>
+          <label class="form-field">Phone number<input name="phone" type="tel" maxlength="40" placeholder="+1 (555) 000-0000"></label>
+          <label class="form-field">Course / program <span>*</span><input name="course" required maxlength="100" list="course-options" placeholder="e.g. Computer Science"><datalist id="course-options"></datalist></label>
+          <label class="form-field">Year of study <span>*</span><select name="year" required><option value="">Select year</option><option value="1">Year 1</option><option value="2">Year 2</option><option value="3">Year 3</option><option value="4">Year 4</option><option value="5">Year 5</option><option value="6">Year 6</option></select></label>
+          <label class="form-field">Enrollment date<input name="enrollment_date" type="date"></label>
+          <label class="form-field">Status<select name="status"><option value="Active">Active</option><option value="Inactive">Inactive</option></select></label>
+        </div>
+        <div class="form-error" id="form-error" role="alert"></div>
+        <div class="modal-actions"><button class="button button-outline" type="button" id="cancel-modal">Cancel</button><button class="button button-primary" type="submit" id="save-student">Save student</button></div>
+      </form>
+    </section>
+  </div>
+
+  <div class="modal-backdrop" id="detail-modal" hidden>
+    <section class="modal detail-modal" role="dialog" aria-modal="true" aria-labelledby="detail-name">
+      <div class="modal-heading"><div><p class="eyebrow">STUDENT PROFILE</p><h2 id="detail-name">Student details</h2><p class="panel-subtitle" id="detail-email"></p></div><button class="icon-button" id="close-detail" type="button" aria-label="Close dialog">×</button></div>
+      <div class="detail-grid" id="detail-content"></div>
+      <div class="modal-actions"><button class="button button-outline" id="detail-close-button" type="button">Close</button><button class="button button-primary" id="detail-edit-button" type="button">Edit student</button></div>
+    </section>
+  </div>
+
+  <div class="modal-backdrop" id="grade-modal" hidden>
+    <section class="modal grade-modal" role="dialog" aria-modal="true" aria-labelledby="grade-modal-title">
+      <div class="modal-heading"><div><p class="eyebrow">ACADEMIC PERFORMANCE</p><h2 id="grade-modal-title">Add a grade</h2><p class="panel-subtitle">Enter an assessment score for a student.</p></div><button class="icon-button" id="close-grade-modal" type="button" aria-label="Close dialog">×</button></div>
+      <form id="grade-form">
+        <div class="form-grid">
+          <label class="form-field full-field">Student <span>*</span><select name="student_id" id="grade-student" required><option value="">Select student</option></select></label>
+          <label class="form-field full-field">Assessment <span>*</span><input name="assessment" required maxlength="120" placeholder="e.g. Midterm exam"></label>
+          <label class="form-field">Score (0–100) <span>*</span><input name="score" type="number" min="0" max="100" step="0.01" required placeholder="e.g. 85"></label>
+          <label class="form-field">Assessment date <span>*</span><input name="assessed_on" type="date" required></label>
+        </div>
+        <div class="form-error" id="grade-form-error" role="alert"></div>
+        <div class="modal-actions"><button class="button button-outline" type="button" id="cancel-grade-modal">Cancel</button><button class="button button-primary" type="submit" id="save-grade">Save grade</button></div>
+      </form>
+    </section>
+  </div>
+</body>
+</html>
